@@ -23,10 +23,10 @@ final class HTTPRequestManager: NSObject {
     
     // MARK: Public Methods
     
-    func getImagesListForTag(_ tag: String, completion: @escaping ([ImageData]) -> Void) -> Int {
+    func getImagesListForTag(_ tag: String, page: Int = 1, completion: @escaping ([ImageData]) -> Void) -> Int {
         let tag = tag.replacingOccurrences(of: " ", with: "%20")
         
-        guard let url = URL(string: "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=3e7cc266ae2b0e0d78e279ce8e361736&format=json&nojsoncallback=1&safe_search=1&text=\(tag.isEmpty ? "null" : tag)"), UIApplication.shared.canOpenURL(url) else {
+        guard let url = URL(string: "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=3e7cc266ae2b0e0d78e279ce8e361736&format=json&nojsoncallback=1&safe_search=1&text=\(tag.isEmpty ? "null" : tag)&page=\(page)"), UIApplication.shared.canOpenURL(url) else {
             
             print("Invalid URL")
             return 1 // Due to Unit Test purposes

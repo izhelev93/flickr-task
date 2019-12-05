@@ -12,11 +12,11 @@ import XCTest
 class HTTPRequestTests: XCTestCase {
     
     func testInvalidHTTPRequestURL() {
-        XCTAssertEqual(HTTPRequestManager.shared.getImagesListForTag("https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=3e7cc266ae2b0e0d78e279ce8e361736&format=json&nojsoncallback=1&safe_search=1&text=man") {_ in }, 0)
+        XCTAssertEqual(HTTPRequestManager.shared.getImagesListForTag("https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=3e7cc266ae2b0e0d78e279ce8e361736&format=json&nojsoncallback=1&safe_search=1&text=man&page=1") {_ in }, 0)
     }
     
     func testValidHTTPRequestURL() {
-       XCTAssertEqual(HTTPRequestManager.shared.getImagesListForTag("https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=3e7cc266ae2b0e0d78e279ce8e361736&format=json&nojsoncallback=1&safe_search=1&text=¬") {_ in }, 1)
+       XCTAssertEqual(HTTPRequestManager.shared.getImagesListForTag("https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=3e7cc266ae2b0e0d78e279ce8e361736&format=json&nojsoncallback=1&safe_search=1&text=¬&page=1") {_ in }, 1)
     }
 }
 

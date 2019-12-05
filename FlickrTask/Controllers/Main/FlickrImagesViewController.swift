@@ -27,6 +27,10 @@ class FlickrImagesViewController: UIViewController {
     
     // MARK: Variables
     
+    private var loadingContainer    : UIView = UIView()
+    private var loadingView         : UIView = UIView()
+    private var activityIndicator   : UIActivityIndicatorView = UIActivityIndicatorView()
+    
     private var imageList           : [UIImage] = []
     private var operatingImageList  : [UIImage] = []
     
@@ -34,6 +38,7 @@ class FlickrImagesViewController: UIViewController {
     
     private var loadImageAttempts     = 0
     private var downloadImageAttempts = 0
+    private var page = 1
     
     
     // MARK: Controller Methods
@@ -59,16 +64,25 @@ class FlickrImagesViewController: UIViewController {
     }
     
     private func getImagesListFor(_ tag: String, newSearch: Bool = true) {
-        _ = HTTPRequestManager.shared.getImagesListForTag(tag) { imageDataList in
+        if !newSearch {
+            self.page += 1
+        }
+        else {
+            self.page = 1
+        }
+        
+        self.showActivityIndicatory(uiView: self.view)
+        
+        _ = HTTPRequestManager.shared.getImagesListForTag(tag, page: self.page) { newImageDataList in
             
             if newSearch {
-                self.imageDataList = imageDataList
+                self.imageDataList = newImageDataList
             }
             else {
-                self.imageDataList.append(contentsOf: imageDataList)
+                self.imageDataList.append(contentsOf: newImageDataList)
             }
             
-            if imageDataList.isEmpty {
+            if newImageDataList.isEmpty {
                 DispatchQueue.main.async {
                     self.operatingImageList = []
                     self.collectionView.reloadData()
@@ -103,6 +117,8 @@ class FlickrImagesViewController: UIViewController {
                     
                     self.collectionView.reloadData()
                 }
+                
+                self.hideActivityIndicator(uiView: self.view)
             }
         }
     }
@@ -163,6 +179,48 @@ extension FlickrImagesViewController: UISearchBarDelegate {
         }
         
         self.getImagesListFor(searchBar.text ?? "")
+    }
+}
+
+extension FlickrImagesViewController {
+    
+    // MARK: Activity Indicator
+    
+    // USED CODE FROM https://github.com/erangaeb/dev-notes/blob/master/swift/ViewControllerUtils.swift
+    
+    private func showActivityIndicatory(uiView: UIView) {
+        self.loadingContainer.frame = uiView.frame
+        self.loadingContainer.center = uiView.center
+        self.loadingContainer.backgroundColor = UIColorFromHex(0xffffff, alpha: 0.3)
+
+        let loadingView: UIView = UIView()
+        loadingView.frame = CGRect(x: 0, y: 0, width: 80, height: 80)
+        loadingView.center = uiView.center
+        loadingView.backgroundColor = UIColorFromHex(0x444444, alpha: 0.7)
+        loadingView.clipsToBounds = true
+        loadingView.layer.cornerRadius = 10
+
+        let actInd: UIActivityIndicatorView = UIActivityIndicatorView()
+        actInd.frame = CGRect(x: 0.0, y: 0.0, width: 40.0, height: 40.0);
+        actInd.style = UIActivityIndicatorView.Style.large
+        actInd.center = CGPoint(x: loadingView.frame.size.width / 2,
+                                y: loadingView.frame.size.height / 2);
+        loadingView.addSubview(actInd)
+        self.loadingContainer.addSubview(loadingView)
+        uiView.addSubview(self.loadingContainer)
+        actInd.startAnimating()
+    }
+    
+    private func hideActivityIndicator(uiView: UIView) {
+        self.activityIndicator.stopAnimating()
+        self.loadingContainer.removeFromSuperview()
+    }
+    
+    private func UIColorFromHex(_ rgbValue:UInt32, alpha:Double=1.0)->UIColor {
+        let red = CGFloat((rgbValue & 0xFF0000) >> 16)/256.0
+        let green = CGFloat((rgbValue & 0xFF00) >> 8)/256.0
+        let blue = CGFloat(rgbValue & 0xFF)/256.0
+        return UIColor(red:red, green:green, blue:blue, alpha:CGFloat(alpha))
     }
 }
 
